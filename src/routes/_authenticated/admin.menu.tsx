@@ -37,7 +37,8 @@ function MenuAdmin() {
     load();
   }
   async function toggle(id: string, field: "is_available" | "is_veg", v: boolean) {
-    const { error } = await supabase.from("menu_items").update({ [field]: v }).eq("id", id);
+    const patch: any = { [field]: v };
+    const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
     if (error) toast.error(error.message); else load();
   }
   async function del(id: string) {

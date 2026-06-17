@@ -8,12 +8,12 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const NAV = [
+const NAV: { to: "/admin" | "/admin/orders" | "/admin/menu" | "/admin/tables"; label: string; Icon: any; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, exact: true },
   { to: "/admin/orders", label: "Orders", Icon: ClipboardList },
   { to: "/admin/menu", label: "Menu", Icon: UtensilsCrossed },
   { to: "/admin/tables", label: "Tables & QR", Icon: QrCode },
-] as const;
+];
 
 function AdminLayout() {
   const navigate = useNavigate();
