@@ -92,7 +92,9 @@ function OrdersPage() {
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
               {STATUSES.filter((s) => s !== o.status).map((s) => (
-                <button key={s} onClick={() => setStatus(o.id, s)} className="rounded-full border border-border bg-background px-3 py-1 text-xs capitalize hover:bg-muted">{s}</button>
+                <button key={s} onClick={() => setStatus(o.id, s)} className={`${statusBadgeClass(s)} transition hover:opacity-80`}>
+                  Mark {statusLabel(s)}
+                </button>
               ))}
             </div>
           </div>
