@@ -8,7 +8,7 @@ export type CartItem = {
   is_veg: boolean;
 };
 
-const KEY = "bmb_cart_v1";
+const KEY = "bmb_cart_v2";
 const TABLE_KEY = "bmb_table_v1";
 
 type Listener = () => void;
