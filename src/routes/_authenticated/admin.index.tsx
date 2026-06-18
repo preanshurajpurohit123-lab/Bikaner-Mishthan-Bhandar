@@ -45,7 +45,7 @@ const RANGE_LABEL: Record<Range, string> = {
   "30d": "Last 30 days",
 };
 
-const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#b8860b", "#7a1c2a", "#d4a017", "#4a0e1a"];
+
 
 // Modern, balanced palette for the Top Selling chart (one colour per item).
 const ITEM_COLORS = [
