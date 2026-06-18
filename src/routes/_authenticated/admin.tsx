@@ -39,7 +39,7 @@ function AdminLayout() {
       <div className="flex min-h-screen items-center justify-center px-4 text-center">
         <div className="max-w-md rounded-2xl border border-border bg-card p-8">
           <h1 className="font-display text-2xl text-primary">No access yet</h1>
-          <p className="mt-3 text-sm text-muted-foreground">Your account doesn't have admin or staff access yet. Sign in with <strong>admin8913@gmail.com</strong> for the first admin login.</p>
+          <p className="mt-3 text-sm text-muted-foreground">Your account doesn't have admin or staff access yet. Please sign in with an authorised admin account, or ask an existing admin to grant you access.</p>
           <button onClick={signOut} className="mt-5 rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground">Sign out</button>
         </div>
       </div>
