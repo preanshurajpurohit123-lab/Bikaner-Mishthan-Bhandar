@@ -274,9 +274,11 @@ function Dashboard() {
                     innerRadius={55}
                     outerRadius={90}
                     paddingAngle={3}
+                    isAnimationActive
+                    animationDuration={700}
                   >
-                    {statusBreakdown.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    {statusBreakdown.map((s) => (
+                      <Cell key={s.name} fill={statusHex(s.name)} />
                     ))}
                   </Pie>
                   <Tooltip
@@ -285,17 +287,15 @@ function Dashboard() {
                       border: "1px solid hsl(var(--border))",
                       borderRadius: 12,
                     }}
+                    formatter={(v: number, _n, p: any) => [v, statusLabel(p?.payload?.name ?? "")]}
                   />
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                {statusBreakdown.map((s, i) => (
+                {statusBreakdown.map((s) => (
                   <span key={s.name} className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-                    />
-                    {s.name} · {s.value}
+                    <span className="h-2 w-2 rounded-full" style={{ background: statusHex(s.name) }} />
+                    {statusLabel(s.name)} · {s.value}
                   </span>
                 ))}
               </div>
