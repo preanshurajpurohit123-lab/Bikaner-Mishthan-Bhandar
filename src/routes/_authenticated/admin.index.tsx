@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
+import { statusHex, statusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: Dashboard,
@@ -44,7 +45,14 @@ const RANGE_LABEL: Record<Range, string> = {
   "30d": "Last 30 days",
 };
 
-const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#b8860b", "#7a1c2a", "#d4a017", "#4a0e1a"];
+
+
+// Modern, balanced palette for the Top Selling chart (one colour per item).
+const ITEM_COLORS = [
+  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
+  "#ec4899", "#8b5cf6", "#14b8a6", "#f97316",
+];
+const TOP_ACCENT = "hsl(var(--accent))";
 
 function rangeStart(range: Range) {
   const d = new Date();
@@ -266,9 +274,11 @@ function Dashboard() {
                     innerRadius={55}
                     outerRadius={90}
                     paddingAngle={3}
+                    isAnimationActive
+                    animationDuration={700}
                   >
-                    {statusBreakdown.map((_, i) => (
-                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    {statusBreakdown.map((s) => (
+                      <Cell key={s.name} fill={statusHex(s.name)} />
                     ))}
                   </Pie>
                   <Tooltip
@@ -277,17 +287,15 @@ function Dashboard() {
                       border: "1px solid hsl(var(--border))",
                       borderRadius: 12,
                     }}
+                    formatter={(v: number, _n, p: any) => [v, statusLabel(p?.payload?.name ?? "")]}
                   />
                 </PieChart>
               </ResponsiveContainer>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                {statusBreakdown.map((s, i) => (
+                {statusBreakdown.map((s) => (
                   <span key={s.name} className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1">
-                    <span
-                      className="h-2 w-2 rounded-full"
-                      style={{ background: PIE_COLORS[i % PIE_COLORS.length] }}
-                    />
-                    {s.name} · {s.value}
+                    <span className="h-2 w-2 rounded-full" style={{ background: statusHex(s.name) }} />
+                    {statusLabel(s.name)} · {s.value}
                   </span>
                 ))}
               </div>
@@ -317,16 +325,29 @@ function Dashboard() {
                   fontSize={11}
                 />
                 <Tooltip
+                  cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
                   contentStyle={{
                     background: "hsl(var(--popover))",
                     border: "1px solid hsl(var(--border))",
                     borderRadius: 12,
+                    boxShadow: "0 8px 24px -12px rgba(0,0,0,0.25)",
                   }}
-                  formatter={(v: number, n) =>
-                    n === "revenue" ? [`${SITE.currency}${v.toFixed(0)}`, "Revenue"] : [v, "Qty"]
-                  }
+                  formatter={(v: number, _n, p: any) => [
+                    `${v} sold · ${SITE.currency}${Number(p?.payload?.revenue ?? 0).toFixed(0)}`,
+                    p?.payload?.name ?? "Item",
+                  ]}
                 />
-                <Bar dataKey="qty" fill="hsl(var(--primary))" radius={[0, 8, 8, 0]} />
+                <Bar
+                  dataKey="qty"
+                  radius={[0, 8, 8, 0]}
+                  isAnimationActive
+                  animationDuration={800}
+                  animationEasing="ease-out"
+                >
+                  {topItems.map((it, i) => (
+                    <Cell key={it.name} fill={i === 0 ? TOP_ACCENT : ITEM_COLORS[i % ITEM_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>

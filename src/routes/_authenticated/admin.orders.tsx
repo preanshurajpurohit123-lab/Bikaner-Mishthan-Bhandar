@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
 import { toast } from "sonner";
+import { statusBadgeClass, statusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: OrdersPage,
@@ -47,9 +48,27 @@ function OrdersPage() {
     <div>
       <h1 className="font-display text-3xl text-primary">Live Orders</h1>
       <div className="mt-4 flex flex-wrap gap-2">
-        {(["active", ...STATUSES] as const).map((s) => (
-          <button key={s} onClick={() => setFilter(s)} className={`rounded-full border px-3 py-1 text-xs capitalize ${filter === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{s}</button>
-        ))}
+        {(["active", ...STATUSES] as const).map((s) => {
+          const isActive = filter === s;
+          if (s === "active") {
+            return (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold capitalize transition ${
+                  isActive ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+                }`}
+              >
+                Active
+              </button>
+            );
+          }
+          return (
+            <button key={s} onClick={() => setFilter(s)} className={`${statusBadgeClass(s, isActive)} transition`}>
+              {statusLabel(s)}
+            </button>
+          );
+        })}
       </div>
       <div className="mt-6 grid gap-4">
         {filtered.length === 0 && <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No orders.</div>}
@@ -63,7 +82,7 @@ function OrdersPage() {
               </div>
               <div className="text-right">
                 <div className="font-display text-2xl text-primary">{SITE.currency}{Number(o.total).toFixed(0)}</div>
-                <div className="mt-1 inline-block rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-medium uppercase text-primary">{o.status}</div>
+                <div className={`mt-1 ${statusBadgeClass(o.status)}`}>{statusLabel(o.status)}</div>
               </div>
             </div>
             <ul className="mt-3 space-y-1 text-sm">
@@ -73,7 +92,9 @@ function OrdersPage() {
             </ul>
             <div className="mt-4 flex flex-wrap gap-2">
               {STATUSES.filter((s) => s !== o.status).map((s) => (
-                <button key={s} onClick={() => setStatus(o.id, s)} className="rounded-full border border-border bg-background px-3 py-1 text-xs capitalize hover:bg-muted">{s}</button>
+                <button key={s} onClick={() => setStatus(o.id, s)} className={`${statusBadgeClass(s)} transition hover:opacity-80`}>
+                  Mark {statusLabel(s)}
+                </button>
               ))}
             </div>
           </div>
