@@ -16,6 +16,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
+import { statusHex, statusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: Dashboard,
