@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
 import { toast } from "sonner";
+import { statusBadgeClass, statusLabel } from "@/lib/order-status";
 
 export const Route = createFileRoute("/_authenticated/admin/orders")({
   component: OrdersPage,
