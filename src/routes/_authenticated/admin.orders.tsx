@@ -48,9 +48,27 @@ function OrdersPage() {
     <div>
       <h1 className="font-display text-3xl text-primary">Live Orders</h1>
       <div className="mt-4 flex flex-wrap gap-2">
-        {(["active", ...STATUSES] as const).map((s) => (
-          <button key={s} onClick={() => setFilter(s)} className={`rounded-full border px-3 py-1 text-xs capitalize ${filter === s ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{s}</button>
-        ))}
+        {(["active", ...STATUSES] as const).map((s) => {
+          const isActive = filter === s;
+          if (s === "active") {
+            return (
+              <button
+                key={s}
+                onClick={() => setFilter(s)}
+                className={`rounded-full border px-3 py-1 text-xs font-semibold capitalize transition ${
+                  isActive ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+                }`}
+              >
+                Active
+              </button>
+            );
+          }
+          return (
+            <button key={s} onClick={() => setFilter(s)} className={`${statusBadgeClass(s, isActive)} transition`}>
+              {statusLabel(s)}
+            </button>
+          );
+        })}
       </div>
       <div className="mt-6 grid gap-4">
         {filtered.length === 0 && <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">No orders.</div>}
