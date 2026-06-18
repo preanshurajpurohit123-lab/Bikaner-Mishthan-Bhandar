@@ -82,7 +82,7 @@ function OrdersPage() {
               </div>
               <div className="text-right">
                 <div className="font-display text-2xl text-primary">{SITE.currency}{Number(o.total).toFixed(0)}</div>
-                <div className="mt-1 inline-block rounded-full bg-accent/20 px-2 py-0.5 text-[10px] font-medium uppercase text-primary">{o.status}</div>
+                <div className={`mt-1 ${statusBadgeClass(o.status)}`}>{statusLabel(o.status)}</div>
               </div>
             </div>
             <ul className="mt-3 space-y-1 text-sm">
