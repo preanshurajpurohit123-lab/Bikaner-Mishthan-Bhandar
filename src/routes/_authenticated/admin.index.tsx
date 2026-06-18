@@ -47,6 +47,13 @@ const RANGE_LABEL: Record<Range, string> = {
 
 const PIE_COLORS = ["hsl(var(--primary))", "hsl(var(--accent))", "#b8860b", "#7a1c2a", "#d4a017", "#4a0e1a"];
 
+// Modern, balanced palette for the Top Selling chart (one colour per item).
+const ITEM_COLORS = [
+  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
+  "#ec4899", "#8b5cf6", "#14b8a6", "#f97316",
+];
+const TOP_ACCENT = "hsl(var(--accent))";
+
 function rangeStart(range: Range) {
   const d = new Date();
   if (range === "today") {
