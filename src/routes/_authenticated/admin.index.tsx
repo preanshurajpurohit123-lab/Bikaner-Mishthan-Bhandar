@@ -325,16 +325,29 @@ function Dashboard() {
                   fontSize={11}
                 />
                 <Tooltip
+                  cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
                   contentStyle={{
                     background: "hsl(var(--popover))",
                     border: "1px solid hsl(var(--border))",
                     borderRadius: 12,
+                    boxShadow: "0 8px 24px -12px rgba(0,0,0,0.25)",
                   }}
-                  formatter={(v: number, n) =>
-                    n === "revenue" ? [`${SITE.currency}${v.toFixed(0)}`, "Revenue"] : [v, "Qty"]
-                  }
+                  formatter={(v: number, _n, p: any) => [
+                    `${v} sold · ${SITE.currency}${Number(p?.payload?.revenue ?? 0).toFixed(0)}`,
+                    p?.payload?.name ?? "Item",
+                  ]}
                 />
-                <Bar dataKey="qty" fill="hsl(var(--primary))" radius={[0, 8, 8, 0]} />
+                <Bar
+                  dataKey="qty"
+                  radius={[0, 8, 8, 0]}
+                  isAnimationActive
+                  animationDuration={800}
+                  animationEasing="ease-out"
+                >
+                  {topItems.map((it, i) => (
+                    <Cell key={it.name} fill={i === 0 ? TOP_ACCENT : ITEM_COLORS[i % ITEM_COLORS.length]} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
