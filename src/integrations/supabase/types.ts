@@ -256,6 +256,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      resolve_table_by_token: {
+        Args: { _token: string }
+        Returns: {
+          id: string
+          qr_token: string
+          table_number: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "staff"
