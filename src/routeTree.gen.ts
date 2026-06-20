@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TrustRouteImport } from './routes/trust'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -22,6 +23,11 @@ import { Route as AuthenticatedAdminTablesRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminMenuRouteImport } from './routes/_authenticated/admin.menu'
 
+const TrustRoute = TrustRouteImport.update({
+  id: '/trust',
+  path: '/trust',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/menu': typeof MenuRoute
+  '/trust': typeof TrustRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/order/$id': typeof OrderIdRoute
   '/t/$token': typeof TTokenRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/menu': typeof MenuRoute
+  '/trust': typeof TrustRoute
   '/order/$id': typeof OrderIdRoute
   '/t/$token': typeof TTokenRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
@@ -116,6 +124,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
   '/menu': typeof MenuRoute
+  '/trust': typeof TrustRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/order/$id': typeof OrderIdRoute
   '/t/$token': typeof TTokenRoute
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/menu'
+    | '/trust'
     | '/admin'
     | '/order/$id'
     | '/t/$token'
@@ -144,6 +154,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/menu'
+    | '/trust'
     | '/order/$id'
     | '/t/$token'
     | '/admin/menu'
@@ -157,6 +168,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cart'
     | '/menu'
+    | '/trust'
     | '/_authenticated/admin'
     | '/order/$id'
     | '/t/$token'
@@ -172,12 +184,20 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
   MenuRoute: typeof MenuRoute
+  TrustRoute: typeof TrustRoute
   OrderIdRoute: typeof OrderIdRoute
   TTokenRoute: typeof TTokenRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/trust': {
+      id: '/trust'
+      path: '/trust'
+      fullPath: '/trust'
+      preLoaderRoute: typeof TrustRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -299,6 +319,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
   MenuRoute: MenuRoute,
+  TrustRoute: TrustRoute,
   OrderIdRoute: OrderIdRoute,
   TTokenRoute: TTokenRoute,
 }
