@@ -13,15 +13,13 @@ function TableRedirect() {
   useEffect(() => {
     (async () => {
       const { data, error } = await supabase
-        .from("restaurant_tables")
-        .select("id, table_number, qr_token, is_active")
-        .eq("qr_token", token)
-        .maybeSingle();
-      if (error || !data || !data.is_active) {
+        .rpc("resolve_table_by_token", { _token: token });
+      const row = Array.isArray(data) ? data[0] : null;
+      if (error || !row) {
         navigate({ to: "/menu" });
         return;
       }
-      setActiveTable({ id: data.id, number: data.table_number, token: data.qr_token });
+      setActiveTable({ id: row.id, number: row.table_number, token: row.qr_token });
       navigate({ to: "/menu" });
     })();
   }, [token, navigate]);
