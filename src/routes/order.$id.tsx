@@ -30,19 +30,20 @@ function OrderPage() {
   useEffect(() => {
     let mounted = true;
     async function load() {
-      const [o, it] = await Promise.all([
-        supabase.from("orders").select("*").eq("id", id).maybeSingle(),
-        supabase.from("order_items").select("*").eq("order_id", id),
-      ]);
+      const { data, error } = await supabase.rpc("get_order_by_id", { _order_id: id });
       if (!mounted) return;
-      setOrder(o.data);
-      setItems(it.data || []);
+      if (error || !data) {
+        setOrder(null);
+        setItems([]);
+        return;
+      }
+      const payload = data as { order: any; items: any[] };
+      setOrder(payload.order);
+      setItems(payload.items || []);
     }
     load();
-    const ch = supabase.channel(`order-${id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `id=eq.${id}` }, (p) => setOrder(p.new))
-      .subscribe();
-    return () => { mounted = false; supabase.removeChannel(ch); };
+    const interval = setInterval(load, 10000);
+    return () => { mounted = false; clearInterval(interval); };
   }, [id]);
 
   const stepIndex = order ? STEPS.findIndex((s) => s.key === order.status) : 0;
