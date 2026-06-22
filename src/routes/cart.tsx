@@ -75,32 +75,16 @@ function CartPage() {
     try {
       const payTag = `[Payment: ${PAY_METHODS.find((p) => p.id === pay)?.label}]`;
       const composedNotes = [payTag, notes.trim()].filter(Boolean).join(" ");
-      const { data: order, error } = await supabase
-        .from("orders")
-        .insert({
-          table_id: table?.id ?? null,
-          table_number: table?.number ?? null,
-          customer_name: name.trim() || null,
-          customer_phone: phone.trim() || null,
-          notes: composedNotes || null,
-          subtotal,
-          total: subtotal,
-          status: "pending",
-        })
-        .select("id, order_number")
-        .single();
+      const { data, error } = await supabase.rpc("create_order_with_items", {
+        _customer_name: name.trim() || (table ? `Table ${table.number}` : ""),
+        _customer_phone: phone.trim() || null,
+        _notes: composedNotes || null,
+        _table_id: table?.id ?? null,
+        _table_number: table?.number ?? null,
+        _items: items.map((i) => ({ menu_item_id: i.id, quantity: i.quantity })) as any,
+      });
       if (error) throw error;
-      const { error: itemsErr } = await supabase.from("order_items").insert(
-        items.map((i) => ({
-          order_id: order.id,
-          menu_item_id: i.id,
-          name_snapshot: i.name,
-          price_snapshot: i.price,
-          quantity: i.quantity,
-          line_total: i.price * i.quantity,
-        })),
-      );
-      if (itemsErr) throw itemsErr;
+      const order = data as { id: string; order_number: number };
       clear();
       toast.success(`Order #${order.order_number} placed!`);
       navigate({ to: "/order/$id", params: { id: order.id }, search: { placed: 1 } as any });
