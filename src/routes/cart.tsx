@@ -77,10 +77,10 @@ function CartPage() {
       const composedNotes = [payTag, notes.trim()].filter(Boolean).join(" ");
       const { data, error } = await supabase.rpc("create_order_with_items", {
         _customer_name: name.trim() || (table ? `Table ${table.number}` : ""),
-        _customer_phone: phone.trim() || null,
-        _notes: composedNotes || null,
-        _table_id: table?.id ?? null,
-        _table_number: table?.number ?? null,
+        _customer_phone: (phone.trim() || null) as any,
+        _notes: (composedNotes || null) as any,
+        _table_id: (table?.id ?? null) as any,
+        _table_number: (table?.number ?? null) as any,
         _items: items.map((i) => ({ menu_item_id: i.id, quantity: i.quantity })) as any,
       });
       if (error) throw error;
