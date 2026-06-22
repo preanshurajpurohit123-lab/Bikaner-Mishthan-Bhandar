@@ -248,6 +248,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_order_with_items: {
+        Args: {
+          _customer_name: string
+          _customer_phone: string
+          _items: Json
+          _notes: string
+          _table_id: string
+          _table_number: number
+        }
+        Returns: Json
+      }
       get_order_by_id: { Args: { _order_id: string }; Returns: Json }
       has_role: {
         Args: {
