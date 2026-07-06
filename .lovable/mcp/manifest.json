@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "bikaner-mishthan-bhandar-mcp",
+      "version": "0.1.0",
+      "title": "Shree Bikaner Mishthan Bhandar"
+    },
+    "tools": [
+      {
+        "name": "list_categories",
+        "title": "List menu categories",
+        "description": "List active menu categories at Shree Bikaner Mishthan Bhandar.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_menu_items",
+        "title": "List menu items",
+        "description": "List available menu items. Optionally filter by category slug (e.g. 'sweets', 'chaat', 'pizza').",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "http://json-schema.org/draft-07/schema#",
+          "type": "object",
+          "properties": {
+            "categorySlug": {
+              "description": "Optional category slug to filter items by.",
+              "type": "string"
+            },
+            "vegOnly": {
+              "description": "If true, only return vegetarian items.",
+              "type": "boolean"
+            }
+          }
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
