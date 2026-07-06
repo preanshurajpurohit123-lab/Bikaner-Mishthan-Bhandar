@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrustRouteImport } from './routes/trust'
 import { Route as MenuRouteImport } from './routes/menu'
+import { Route as McpRouteImport } from './routes/mcp'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
@@ -18,10 +19,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as TTokenRouteImport } from './routes/t.$token'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as Char91DotwellKnownChar93OauthProtectedResourceRouteImport } from './routes/[.well-known]/oauth-protected-resource'
+import { Route as Char91DotmcpChar93ListToolsRouteImport } from './routes/[.mcp]/list-tools'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminTablesRouteImport } from './routes/_authenticated/admin.tables'
 import { Route as AuthenticatedAdminOrdersRouteImport } from './routes/_authenticated/admin.orders'
 import { Route as AuthenticatedAdminMenuRouteImport } from './routes/_authenticated/admin.menu'
+import { Route as Char91DotmcpChar93InvokeToolToolRouteImport } from './routes/[.mcp]/invoke-tool/$tool'
 
 const TrustRoute = TrustRouteImport.update({
   id: '/trust',
@@ -31,6 +35,11 @@ const TrustRoute = TrustRouteImport.update({
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpRoute = McpRouteImport.update({
+  id: '/mcp',
+  path: '/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CartRoute = CartRouteImport.update({
@@ -67,6 +76,18 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const Char91DotwellKnownChar93OauthProtectedResourceRoute =
+  Char91DotwellKnownChar93OauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const Char91DotmcpChar93ListToolsRoute =
+  Char91DotmcpChar93ListToolsRouteImport.update({
+    id: '/.mcp/list-tools',
+    path: '/.mcp/list-tools',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -89,16 +110,26 @@ const AuthenticatedAdminMenuRoute = AuthenticatedAdminMenuRouteImport.update({
   path: '/menu',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const Char91DotmcpChar93InvokeToolToolRoute =
+  Char91DotmcpChar93InvokeToolToolRouteImport.update({
+    id: '/.mcp/invoke-tool/$tool',
+    path: '/.mcp/invoke-tool/$tool',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/mcp': typeof McpRoute
   '/menu': typeof MenuRoute
   '/trust': typeof TrustRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/order/$id': typeof OrderIdRoute
   '/t/$token': typeof TTokenRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/tables': typeof AuthenticatedAdminTablesRoute
@@ -108,10 +139,14 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/mcp': typeof McpRoute
   '/menu': typeof MenuRoute
   '/trust': typeof TrustRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/order/$id': typeof OrderIdRoute
   '/t/$token': typeof TTokenRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/admin/tables': typeof AuthenticatedAdminTablesRoute
@@ -123,11 +158,15 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/cart': typeof CartRoute
+  '/mcp': typeof McpRoute
   '/menu': typeof MenuRoute
   '/trust': typeof TrustRoute
+  '/.mcp/list-tools': typeof Char91DotmcpChar93ListToolsRoute
+  '/.well-known/oauth-protected-resource': typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/order/$id': typeof OrderIdRoute
   '/t/$token': typeof TTokenRoute
+  '/.mcp/invoke-tool/$tool': typeof Char91DotmcpChar93InvokeToolToolRoute
   '/_authenticated/admin/menu': typeof AuthenticatedAdminMenuRoute
   '/_authenticated/admin/orders': typeof AuthenticatedAdminOrdersRoute
   '/_authenticated/admin/tables': typeof AuthenticatedAdminTablesRoute
@@ -139,11 +178,15 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/mcp'
     | '/menu'
     | '/trust'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/admin'
     | '/order/$id'
     | '/t/$token'
+    | '/.mcp/invoke-tool/$tool'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/tables'
@@ -153,10 +196,14 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/cart'
+    | '/mcp'
     | '/menu'
     | '/trust'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/order/$id'
     | '/t/$token'
+    | '/.mcp/invoke-tool/$tool'
     | '/admin/menu'
     | '/admin/orders'
     | '/admin/tables'
@@ -167,11 +214,15 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/cart'
+    | '/mcp'
     | '/menu'
     | '/trust'
+    | '/.mcp/list-tools'
+    | '/.well-known/oauth-protected-resource'
     | '/_authenticated/admin'
     | '/order/$id'
     | '/t/$token'
+    | '/.mcp/invoke-tool/$tool'
     | '/_authenticated/admin/menu'
     | '/_authenticated/admin/orders'
     | '/_authenticated/admin/tables'
@@ -183,10 +234,14 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   CartRoute: typeof CartRoute
+  McpRoute: typeof McpRoute
   MenuRoute: typeof MenuRoute
   TrustRoute: typeof TrustRoute
+  Char91DotmcpChar93ListToolsRoute: typeof Char91DotmcpChar93ListToolsRoute
+  Char91DotwellKnownChar93OauthProtectedResourceRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRoute
   OrderIdRoute: typeof OrderIdRoute
   TTokenRoute: typeof TTokenRoute
+  Char91DotmcpChar93InvokeToolToolRoute: typeof Char91DotmcpChar93InvokeToolToolRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -203,6 +258,13 @@ declare module '@tanstack/react-router' {
       path: '/menu'
       fullPath: '/menu'
       preLoaderRoute: typeof MenuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp': {
+      id: '/mcp'
+      path: '/mcp'
+      fullPath: '/mcp'
+      preLoaderRoute: typeof McpRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/cart': {
@@ -254,6 +316,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof Char91DotwellKnownChar93OauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.mcp/list-tools': {
+      id: '/.mcp/list-tools'
+      path: '/.mcp/list-tools'
+      fullPath: '/.mcp/list-tools'
+      preLoaderRoute: typeof Char91DotmcpChar93ListToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
@@ -281,6 +357,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/menu'
       preLoaderRoute: typeof AuthenticatedAdminMenuRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/.mcp/invoke-tool/$tool': {
+      id: '/.mcp/invoke-tool/$tool'
+      path: '/.mcp/invoke-tool/$tool'
+      fullPath: '/.mcp/invoke-tool/$tool'
+      preLoaderRoute: typeof Char91DotmcpChar93InvokeToolToolRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -318,11 +401,26 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   CartRoute: CartRoute,
+  McpRoute: McpRoute,
   MenuRoute: MenuRoute,
   TrustRoute: TrustRoute,
+  Char91DotmcpChar93ListToolsRoute: Char91DotmcpChar93ListToolsRoute,
+  Char91DotwellKnownChar93OauthProtectedResourceRoute:
+    Char91DotwellKnownChar93OauthProtectedResourceRoute,
   OrderIdRoute: OrderIdRoute,
   TTokenRoute: TTokenRoute,
+  Char91DotmcpChar93InvokeToolToolRoute: Char91DotmcpChar93InvokeToolToolRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
