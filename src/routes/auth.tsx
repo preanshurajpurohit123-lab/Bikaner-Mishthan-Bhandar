@@ -7,30 +7,48 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: `Sign in · ${SITE.name}` }] }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" ? s.next : "",
+  }),
   component: AuthPage,
 });
 
+// Only accept same-origin relative paths for post-login redirect.
+function safeNext(next: string): string | null {
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  return next;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const goAfterAuth = () => {
+    const dest = safeNext(next);
+    if (dest) window.location.href = dest;
+    else navigate({ to: "/admin" });
+  };
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/admin" });
+      if (data.session) goAfterAuth();
     });
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
     try {
       if (mode === "signup") {
+        const dest = safeNext(next) ?? "/admin";
         const { error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: window.location.origin + "/admin" },
+          options: { emailRedirectTo: window.location.origin + dest },
         });
         if (error) throw error;
         toast.success("Account created. You can sign in now.");
@@ -38,7 +56,7 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/admin" });
+        goAfterAuth();
       }
     } catch (e: any) {
       toast.error(e.message || "Authentication failed");
@@ -49,7 +67,8 @@ function AuthPage() {
 
   async function google() {
     setBusy(true);
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/admin" });
+    const dest = safeNext(next) ?? "/admin";
+    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + dest });
     if (r.error) toast.error((r.error as any).message || "Google sign-in failed");
     setBusy(false);
   }
