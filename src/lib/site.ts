@@ -1,4 +1,6 @@
-import logo from "@/assets/bmb-logo.jpeg.asset.json";
+import logoUrl from "@/assets/bmb-logo.jpeg";
+
+const logo = { url: logoUrl };
 
 export const SITE = {
   name: "Shree Bikaner Mishthan Bhandar",
