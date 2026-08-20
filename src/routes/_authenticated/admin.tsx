@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
 import { LayoutDashboard, ClipboardList, UtensilsCrossed, QrCode, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -17,6 +18,7 @@ const NAV: { to: "/admin" | "/admin/orders" | "/admin/menu" | "/admin/tables"; l
 
 function AdminLayout() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
@@ -30,8 +32,10 @@ function AdminLayout() {
   }, []);
 
   async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
-    navigate({ to: "/auth" });
+    navigate({ to: "/auth", search: { next: "" }, replace: true });
   }
 
   if (isAdmin === null) {
