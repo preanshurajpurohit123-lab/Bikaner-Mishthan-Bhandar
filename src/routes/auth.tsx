@@ -4,9 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { SITE } from "@/lib/site";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: `Sign in · ${SITE.name}` }] }),
+  head: () => ({
+    meta: [
+      { title: `Admin Sign In · ${SITE.name}` },
+      { name: "description", content: `Secure staff and admin sign in for ${SITE.name}.` },
+      { property: "og:title", content: `Admin Sign In · ${SITE.name}` },
+      { property: "og:description", content: `Secure staff and admin sign in for ${SITE.name}.` },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   validateSearch: (s: Record<string, unknown>) => ({
     next: typeof s.next === "string" ? s.next : "",
   }),
@@ -22,7 +32,6 @@ function safeNext(next: string): string | null {
 function AuthPage() {
   const navigate = useNavigate();
   const { next } = Route.useSearch();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -44,20 +53,9 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const dest = safeNext(next) ?? "/admin";
-        const { error } = await supabase.auth.signUp({
-          email, password,
-          options: { emailRedirectTo: window.location.origin + dest },
-        });
-        if (error) throw error;
-        toast.success("Account created. You can sign in now.");
-        setMode("signin");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        goAfterAuth();
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw error;
+      goAfterAuth();
     } catch (e: any) {
       toast.error(e.message || "Authentication failed");
     } finally {
@@ -83,22 +81,20 @@ function AuthPage() {
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Staff & admin</div>
           </div>
         </Link>
-        <h1 className="mt-6 font-display text-2xl">{mode === "signin" ? "Sign in" : "Create account"}</h1>
+        <h1 className="mt-6 font-display text-2xl">Admin sign in</h1>
         <p className="mt-1 text-sm text-muted-foreground">Access the restaurant dashboard.</p>
-        <button onClick={google} disabled={busy} className="mt-6 flex w-full items-center justify-center gap-2 rounded-md border border-border bg-background py-2.5 text-sm font-medium hover:bg-muted disabled:opacity-60">
+        <Button type="button" variant="outline" onClick={google} disabled={busy} className="mt-6 w-full">
           Continue with Google
-        </button>
+        </Button>
         <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground"><div className="h-px flex-1 bg-border" />or<div className="h-px flex-1 bg-border" /></div>
         <form onSubmit={submit} className="space-y-3">
           <input required type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent" />
           <input required type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password (min 8 chars)" className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-accent" />
-          <button disabled={busy} className="w-full rounded-md bg-primary py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-60">
-            {busy ? "Please wait…" : mode === "signin" ? "Sign in" : "Create account"}
-          </button>
+          <Button disabled={busy} className="w-full">
+            {busy ? "Signing in…" : "Sign in"}
+          </Button>
         </form>
-        <button onClick={() => setMode(mode === "signin" ? "signup" : "signin")} className="mt-4 w-full text-center text-xs text-muted-foreground hover:text-primary">
-          {mode === "signin" ? "Don't have an account? Create one" : "Already have an account? Sign in"}
-        </button>
+        <p className="mt-4 text-center text-xs text-muted-foreground">Only authorised staff accounts can access the dashboard.</p>
       </div>
     </div>
   );
