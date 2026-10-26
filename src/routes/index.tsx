@@ -9,6 +9,12 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: `${SITE.name} · Batala — Order at your table` },
       { name: "description", content: `${SITE.tagline} — visit us in Batala, Gurdaspur.` },
+      { property: "og:type", content: "website" },
+      { property: "og:title", content: `${SITE.name} · Batala — Order at your table` },
+      { property: "og:description", content: `${SITE.tagline} — visit us in Batala, Gurdaspur.` },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: `${SITE.name} · Batala — Order at your table` },
+      { name: "twitter:description", content: `${SITE.tagline} — visit us in Batala, Gurdaspur.` },
     ],
   }),
   component: Home,
