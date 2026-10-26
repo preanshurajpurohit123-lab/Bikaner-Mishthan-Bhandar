@@ -269,7 +269,7 @@ function CartPage() {
                 onClick={placeOrder}
                 className="rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground disabled:opacity-60"
               >
-                {submitting ? "Placing…" : "Continue"}
+                {submitting ? "Placing…" : "Place order"}
               </button>
             </div>
           </>
