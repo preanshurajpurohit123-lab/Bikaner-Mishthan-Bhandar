@@ -27,6 +27,8 @@ function OrderPage() {
   const [items, setItems] = useState<any[]>([]);
   const [showSuccess, setShowSuccess] = useState<boolean>(Boolean(placed));
 
+  const [notFound, setNotFound] = useState(false);
+
   useEffect(() => {
     let mounted = true;
     async function load() {
@@ -35,13 +37,16 @@ function OrderPage() {
       if (error || !data) {
         setOrder(null);
         setItems([]);
+        setNotFound(true);
         return;
       }
       const payload = data as { order: any; items: any[] };
       setOrder(payload.order);
       setItems(payload.items || []);
+      setNotFound(false);
     }
     load();
+    if (!navigator.onLine) return;
     const interval = setInterval(load, 10000);
     return () => { mounted = false; clearInterval(interval); };
   }, [id]);
@@ -59,7 +64,13 @@ function OrderPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <div className="mx-auto max-w-2xl px-4 py-10">
-        {!order ? (
+        {notFound && !order ? (
+          <div className="py-20 text-center">
+            <h1 className="font-display text-3xl text-primary">Order not found</h1>
+            <p className="mt-2 text-sm text-muted-foreground">This order link is invalid or the order no longer exists.</p>
+            <Link to="/menu" className="mt-6 inline-block rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground hover:opacity-90">Browse menu</Link>
+          </div>
+        ) : !order ? (
           <div className="py-20 text-center text-muted-foreground">Loading your order…</div>
         ) : (
           <>
