@@ -27,6 +27,8 @@ function OrderPage() {
   const [items, setItems] = useState<any[]>([]);
   const [showSuccess, setShowSuccess] = useState<boolean>(Boolean(placed));
 
+  const [notFound, setNotFound] = useState(false);
+
   useEffect(() => {
     let mounted = true;
     async function load() {
@@ -35,13 +37,16 @@ function OrderPage() {
       if (error || !data) {
         setOrder(null);
         setItems([]);
+        setNotFound(true);
         return;
       }
       const payload = data as { order: any; items: any[] };
       setOrder(payload.order);
       setItems(payload.items || []);
+      setNotFound(false);
     }
     load();
+    if (!navigator.onLine) return;
     const interval = setInterval(load, 10000);
     return () => { mounted = false; clearInterval(interval); };
   }, [id]);
