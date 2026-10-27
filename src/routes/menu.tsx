@@ -23,7 +23,7 @@ type Item = { id: string; category_id: string; name: string; description: string
 type Cat = { id: string; name: string; slug: string; sort_order: number };
 
 function MenuPage() {
-  const { data } = useQuery({
+  const { data, isError, refetch, isFetching } = useQuery({
     queryKey: ["menu"],
     queryFn: async () => {
       const [cats, items] = await Promise.all([
@@ -34,6 +34,8 @@ function MenuPage() {
       if (items.error) throw items.error;
       return { categories: cats.data as Cat[], items: items.data as Item[] };
     },
+    retry: 2,
+    staleTime: 60_000,
   });
   const { table } = useActiveTable();
   const [q, setQ] = useState("");
@@ -79,7 +81,16 @@ function MenuPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 pb-32">
-        {!data && <div className="py-20 text-center text-muted-foreground">Loading menu…</div>}
+        {isError ? (
+          <div className="py-20 text-center">
+            <p className="text-muted-foreground">Menu load nahi ho paya. Please try again.</p>
+            <button onClick={() => refetch()} className="mt-4 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
+              Retry
+            </button>
+          </div>
+        ) : !data && isFetching ? (
+          <div className="py-20 text-center text-muted-foreground">Loading menu…</div>
+        ) : null}
         {grouped.map((g) => (
           <section key={g.cat.id} className="mt-10">
             <h2 className="font-display text-2xl text-primary">{g.cat.name}</h2>
