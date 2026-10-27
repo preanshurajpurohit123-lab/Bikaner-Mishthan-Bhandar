@@ -13,8 +13,8 @@ export function SiteHeader() {
         <Link to="/" className="flex items-center gap-3">
           <img src={SITE.logoUrl} alt="BMB logo" className="h-10 w-10 rounded-full ring-2 ring-accent/60" />
           <div className="leading-tight">
-            <div className="font-display text-base font-semibold text-primary">Bikaner Mishthan</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Bhandar · Batala</div>
+            <div className="font-display text-base font-semibold text-primary">श्री Bikaner Mishthan Bhandar</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Batala</div>
           </div>
         </Link>
         <nav className="hidden gap-7 text-sm font-medium md:flex">
