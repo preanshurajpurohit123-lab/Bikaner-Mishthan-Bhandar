@@ -11,9 +11,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-3">
-          <img src={SITE.logoUrl} alt="BMB logo" className="h-10 w-10 rounded-full ring-2 ring-accent/60" />
+          <img src={SITE.logoUrl} alt="BMB logo" className="h-[46px] w-[46px] rounded-full ring-2 ring-accent/60" />
           <div className="leading-tight">
-            <div className="font-display text-base font-semibold text-primary">श्री Bikaner Mishthan Bhandar</div>
+            <div className="font-display text-[19px] font-semibold text-primary">श्री Bikaner Mishthan Bhandar</div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Batala</div>
           </div>
         </Link>
