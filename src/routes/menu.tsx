@@ -23,7 +23,7 @@ type Item = { id: string; category_id: string; name: string; description: string
 type Cat = { id: string; name: string; slug: string; sort_order: number };
 
 function MenuPage() {
-  const { data } = useQuery({
+  const { data, isError, refetch, isFetching } = useQuery({
     queryKey: ["menu"],
     queryFn: async () => {
       const [cats, items] = await Promise.all([
@@ -34,6 +34,8 @@ function MenuPage() {
       if (items.error) throw items.error;
       return { categories: cats.data as Cat[], items: items.data as Item[] };
     },
+    retry: 2,
+    staleTime: 60_000,
   });
   const { table } = useActiveTable();
   const [q, setQ] = useState("");
