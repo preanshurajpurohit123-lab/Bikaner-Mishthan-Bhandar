@@ -96,6 +96,46 @@ function MenuAdmin() {
     if (error) toast.error(error.message); else { toast.success("Deleted"); load(); }
   }
 
+  async function addCategory() {
+    const name = newCatName.trim();
+    if (!name) return toast.error("Enter a category name");
+    const { data, error } = await supabase
+      .from("categories")
+      .insert({ name, slug: slugify(name), sort_order: cats.length })
+      .select("id, name")
+      .single();
+    if (error) return toast.error(error.message);
+    setNewCatName("");
+    toast.success("Category added");
+    await load();
+    if (data) setActiveCat(data.id);
+  }
+
+  async function renameCategory(cat: any) {
+    const name = prompt("Rename category", cat.name);
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === cat.name) return;
+    const { error } = await supabase.from("categories").update({ name: trimmed, slug: slugify(trimmed) }).eq("id", cat.id);
+    if (error) return toast.error(error.message);
+    toast.success("Category updated");
+    load();
+  }
+
+  async function delCategory(cat: any) {
+    const count = items.filter((i) => i.category_id === cat.id).length;
+    if (count > 0) {
+      toast.error(`Move or delete the ${count} item(s) in this category first`);
+      return;
+    }
+    if (!confirm(`Delete category "${cat.name}"?`)) return;
+    const { error } = await supabase.from("categories").delete().eq("id", cat.id);
+    if (error) return toast.error(error.message);
+    toast.success("Category deleted");
+    if (activeCat === cat.id) setActiveCat("");
+    load();
+  }
+
   const filtered = items.filter((i) => i.category_id === activeCat);
 
   return (
