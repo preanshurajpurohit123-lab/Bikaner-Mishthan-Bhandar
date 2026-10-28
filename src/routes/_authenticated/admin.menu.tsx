@@ -141,10 +141,22 @@ function MenuAdmin() {
   return (
     <div>
       <h1 className="font-display text-3xl text-primary">Menu</h1>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         {cats.map((c) => (
-          <button key={c.id} onClick={() => setActiveCat(c.id)} className={`rounded-full border px-3 py-1 text-sm ${activeCat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{c.name}</button>
+          <span key={c.id} className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm ${activeCat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
+            <button onClick={() => setActiveCat(c.id)}>{c.name}</button>
+            <button onClick={() => renameCategory(c)} aria-label={`Rename ${c.name}`} title="Rename category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Pencil className="h-3 w-3" /></button>
+            <button onClick={() => delCategory(c)} aria-label={`Delete ${c.name}`} title="Delete category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Trash2 className="h-3 w-3" /></button>
+          </span>
         ))}
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-border bg-card p-4">
+        <h3 className="font-display text-lg">Add category</h3>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addCategory()} placeholder="Category name" className="rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <button onClick={addCategory} className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"><Plus className="h-4 w-4" />Add category</button>
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-4">
