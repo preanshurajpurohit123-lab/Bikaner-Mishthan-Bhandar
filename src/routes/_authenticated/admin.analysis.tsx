@@ -100,8 +100,6 @@ function Analysis() {
     };
   }, [period]);
 
-  const [monthlyOrders, setMonthlyOrders] = useState<OrderRow[]>([]);
-
   const paid = useMemo(() => orders.filter((o) => o.status !== "cancelled"), [orders]);
 
   const totals = useMemo(() => {
