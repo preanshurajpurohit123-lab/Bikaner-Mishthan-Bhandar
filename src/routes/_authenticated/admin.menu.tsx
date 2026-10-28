@@ -11,6 +11,11 @@ export const Route = createFileRoute("/_authenticated/admin/menu")({
 
 const emptyForm = { name: "", price: "", is_veg: true, description: "", category_id: "" };
 
+function slugify(name: string) {
+  const base = name.toLowerCase().trim().replace(/[^a-z0-9\u0900-\u097F]+/g, "-").replace(/^-+|-+$/g, "");
+  return base || `cat-${Date.now()}`;
+}
+
 function MenuAdmin() {
   const [cats, setCats] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
@@ -19,6 +24,7 @@ function MenuAdmin() {
   const [editing, setEditing] = useState<any | null>(null);
   const [editForm, setEditForm] = useState<any>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
 
   async function load() {
     const [c, i] = await Promise.all([
