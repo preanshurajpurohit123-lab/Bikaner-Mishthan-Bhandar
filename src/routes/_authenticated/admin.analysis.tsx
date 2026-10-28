@@ -63,6 +63,8 @@ function Analysis() {
   const [items, setItems] = useState<ItemRow[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [monthlyOrders, setMonthlyOrders] = useState<OrderRow[]>([]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
