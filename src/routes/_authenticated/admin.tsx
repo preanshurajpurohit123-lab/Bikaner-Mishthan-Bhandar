@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
-import { LayoutDashboard, ClipboardList, UtensilsCrossed, QrCode, LogOut } from "lucide-react";
+import { LayoutDashboard, ClipboardList, UtensilsCrossed, BarChart3, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -9,11 +9,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
 });
 
-const NAV: { to: "/admin" | "/admin/orders" | "/admin/menu" | "/admin/tables"; label: string; Icon: any; exact?: boolean }[] = [
+const NAV: { to: "/admin" | "/admin/orders" | "/admin/menu" | "/admin/analysis"; label: string; Icon: any; exact?: boolean }[] = [
   { to: "/admin", label: "Dashboard", Icon: LayoutDashboard, exact: true },
   { to: "/admin/orders", label: "Orders", Icon: ClipboardList },
   { to: "/admin/menu", label: "Menu", Icon: UtensilsCrossed },
-  { to: "/admin/tables", label: "Tables & QR", Icon: QrCode },
+  { to: "/admin/analysis", label: "Analysis", Icon: BarChart3 },
 ];
 
 function AdminLayout() {
