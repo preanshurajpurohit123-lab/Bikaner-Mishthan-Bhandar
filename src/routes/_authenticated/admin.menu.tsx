@@ -20,11 +20,12 @@ function MenuAdmin() {
   const [cats, setCats] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
   const [activeCat, setActiveCat] = useState<string>("");
-  const [form, setForm] = useState({ name: "", price: "", is_veg: true });
+  const [form, setForm] = useState({ name: "", price: "" });
   const [editing, setEditing] = useState<any | null>(null);
   const [editForm, setEditForm] = useState<any>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [newCatName, setNewCatName] = useState("");
+  const [catEditOpen, setCatEditOpen] = useState(false);
 
   async function load() {
     const [c, i] = await Promise.all([
@@ -40,10 +41,10 @@ function MenuAdmin() {
   async function addItem() {
     if (!form.name || !form.price || !activeCat) return;
     const { error } = await supabase.from("menu_items").insert({
-      category_id: activeCat, name: form.name, price: Number(form.price), is_veg: form.is_veg,
+      category_id: activeCat, name: form.name, price: Number(form.price),
     });
     if (error) return toast.error(error.message);
-    setForm({ name: "", price: "", is_veg: true });
+    setForm({ name: "", price: "" });
     toast.success("Item added");
     load();
   }
@@ -85,7 +86,7 @@ function MenuAdmin() {
     load();
   }
 
-  async function toggle(id: string, field: "is_available" | "is_veg", v: boolean) {
+  async function toggle(id: string, field: "is_available", v: boolean) {
     const patch: any = { [field]: v };
     const { error } = await supabase.from("menu_items").update(patch).eq("id", id);
     if (error) toast.error(error.message); else load();
@@ -142,13 +143,20 @@ function MenuAdmin() {
     <div>
       <h1 className="font-display text-3xl text-primary">Menu</h1>
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        {cats.map((c) => (
-          <span key={c.id} className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm ${activeCat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
-            <button onClick={() => setActiveCat(c.id)}>{c.name}</button>
-            <button onClick={() => renameCategory(c)} aria-label={`Rename ${c.name}`} title="Rename category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Pencil className="h-3 w-3" /></button>
-            <button onClick={() => delCategory(c)} aria-label={`Delete ${c.name}`} title="Delete category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Trash2 className="h-3 w-3" /></button>
-          </span>
-        ))}
+        {cats.map((c) => {
+          const isActive = activeCat === c.id;
+          return (
+            <span key={c.id} className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm ${isActive ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
+              <button onClick={() => { if (isActive) setCatEditOpen((v) => !v); else { setActiveCat(c.id); setCatEditOpen(false); } }}>{c.name}</button>
+              {isActive && catEditOpen && (
+                <>
+                  <button onClick={() => renameCategory(c)} aria-label={`Rename ${c.name}`} title="Rename category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Pencil className="h-3 w-3" /></button>
+                  <button onClick={() => delCategory(c)} aria-label={`Delete ${c.name}`} title="Delete category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Trash2 className="h-3 w-3" /></button>
+                </>
+              )}
+            </span>
+          );
+        })}
       </div>
 
       <div className="mt-3 rounded-2xl border border-border bg-card p-4">
@@ -166,15 +174,12 @@ function MenuAdmin() {
           <input value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="Price" type="number" className="rounded-md border border-border bg-background px-3 py-2 text-sm" />
           <button onClick={addItem} className="inline-flex items-center justify-center gap-1 rounded-md bg-primary py-2 text-sm text-primary-foreground"><Plus className="h-4 w-4" />Add</button>
         </div>
-        <label className="mt-3 inline-flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={form.is_veg} onChange={(e) => setForm({ ...form, is_veg: e.target.checked })} /> Veg
-        </label>
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted/40 text-left text-xs uppercase text-muted-foreground">
-            <tr><th className="p-3">Name</th><th className="p-3">Price</th><th className="p-3">Veg</th><th className="p-3">Available</th><th className="p-3 text-right">Actions</th></tr>
+            <tr><th className="p-3">Name</th><th className="p-3">Price</th><th className="p-3">Available</th><th className="p-3 text-right">Actions</th></tr>
           </thead>
           <tbody>
             {filtered.map((i) => (
@@ -184,7 +189,6 @@ function MenuAdmin() {
                   {i.description ? <div className="text-xs font-normal text-muted-foreground">{i.description}</div> : null}
                 </td>
                 <td className="p-3">{SITE.currency}{Number(i.price).toFixed(0)}</td>
-                <td className="p-3"><input type="checkbox" checked={i.is_veg} onChange={(e) => toggle(i.id, "is_veg", e.target.checked)} /></td>
                 <td className="p-3"><input type="checkbox" checked={i.is_available} onChange={(e) => toggle(i.id, "is_available", e.target.checked)} /></td>
                 <td className="p-3 text-right">
                   <div className="inline-flex items-center gap-1">
@@ -225,9 +229,6 @@ function MenuAdmin() {
                 </select>
               </label>
               <div className="flex gap-6 text-sm">
-                <label className="inline-flex items-center gap-2">
-                  <input type="checkbox" checked={editForm.is_veg} onChange={(e) => setEditForm({ ...editForm, is_veg: e.target.checked })} /> Veg
-                </label>
                 <label className="inline-flex items-center gap-2">
                   <input type="checkbox" checked={editForm.is_available} onChange={(e) => setEditForm({ ...editForm, is_available: e.target.checked })} /> Available
                 </label>
