@@ -11,6 +11,11 @@ export const Route = createFileRoute("/_authenticated/admin/menu")({
 
 const emptyForm = { name: "", price: "", is_veg: true, description: "", category_id: "" };
 
+function slugify(name: string) {
+  const base = name.toLowerCase().trim().replace(/[^a-z0-9\u0900-\u097F]+/g, "-").replace(/^-+|-+$/g, "");
+  return base || `cat-${Date.now()}`;
+}
+
 function MenuAdmin() {
   const [cats, setCats] = useState<any[]>([]);
   const [items, setItems] = useState<any[]>([]);
@@ -19,6 +24,7 @@ function MenuAdmin() {
   const [editing, setEditing] = useState<any | null>(null);
   const [editForm, setEditForm] = useState<any>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [newCatName, setNewCatName] = useState("");
 
   async function load() {
     const [c, i] = await Promise.all([
@@ -90,15 +96,67 @@ function MenuAdmin() {
     if (error) toast.error(error.message); else { toast.success("Deleted"); load(); }
   }
 
+  async function addCategory() {
+    const name = newCatName.trim();
+    if (!name) return toast.error("Enter a category name");
+    const { data, error } = await supabase
+      .from("categories")
+      .insert({ name, slug: slugify(name), sort_order: cats.length })
+      .select("id, name")
+      .single();
+    if (error) return toast.error(error.message);
+    setNewCatName("");
+    toast.success("Category added");
+    await load();
+    if (data) setActiveCat(data.id);
+  }
+
+  async function renameCategory(cat: any) {
+    const name = prompt("Rename category", cat.name);
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === cat.name) return;
+    const { error } = await supabase.from("categories").update({ name: trimmed, slug: slugify(trimmed) }).eq("id", cat.id);
+    if (error) return toast.error(error.message);
+    toast.success("Category updated");
+    load();
+  }
+
+  async function delCategory(cat: any) {
+    const count = items.filter((i) => i.category_id === cat.id).length;
+    if (count > 0) {
+      toast.error(`Move or delete the ${count} item(s) in this category first`);
+      return;
+    }
+    if (!confirm(`Delete category "${cat.name}"?`)) return;
+    const { error } = await supabase.from("categories").delete().eq("id", cat.id);
+    if (error) return toast.error(error.message);
+    toast.success("Category deleted");
+    if (activeCat === cat.id) setActiveCat("");
+    load();
+  }
+
   const filtered = items.filter((i) => i.category_id === activeCat);
 
   return (
     <div>
       <h1 className="font-display text-3xl text-primary">Menu</h1>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap items-center gap-2">
         {cats.map((c) => (
-          <button key={c.id} onClick={() => setActiveCat(c.id)} className={`rounded-full border px-3 py-1 text-sm ${activeCat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{c.name}</button>
+          <span key={c.id} className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-sm ${activeCat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
+            <button onClick={() => setActiveCat(c.id)}>{c.name}</button>
+            <button onClick={() => renameCategory(c)} aria-label={`Rename ${c.name}`} title="Rename category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Pencil className="h-3 w-3" /></button>
+            <button onClick={() => delCategory(c)} aria-label={`Delete ${c.name}`} title="Delete category" className="rounded p-0.5 opacity-70 hover:opacity-100"><Trash2 className="h-3 w-3" /></button>
+          </span>
         ))}
+      </div>
+
+      <div className="mt-3 rounded-2xl border border-border bg-card p-4">
+        <h3 className="font-display text-lg">Add category</h3>
+        <div className="mt-3 flex flex-wrap gap-3">
+          <input value={newCatName} onChange={(e) => setNewCatName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addCategory()} placeholder="Category name" className="rounded-md border border-border bg-background px-3 py-2 text-sm" />
+          <button onClick={addCategory} className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-4 py-2 text-sm text-primary-foreground"><Plus className="h-4 w-4" />Add category</button>
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-border bg-card p-4">
