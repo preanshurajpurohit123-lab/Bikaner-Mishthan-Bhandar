@@ -1,7 +1,7 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
-import { LayoutDashboard, ClipboardList, UtensilsCrossed, QrCode, LogOut } from "lucide-react";
+import { LayoutDashboard, ClipboardList, UtensilsCrossed, BarChart3, LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
