@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
+  Area,
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
+  Line,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,6 +15,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
+import { CHART_COLORS, compactNum, formatINR, tooltipStyle } from "@/lib/admin-charts";
 
 export const Route = createFileRoute("/_authenticated/admin/analysis")({
   component: Analysis,
@@ -39,11 +43,6 @@ const PERIOD_LABEL: Record<Period, string> = {
   month: "Month",
 };
 
-const BAR_COLORS = [
-  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
-  "#ec4899", "#8b5cf6", "#14b8a6", "#f97316",
-];
-
 function periodStart(p: Period) {
   const d = new Date();
   if (p === "day") d.setHours(0, 0, 0, 0);
@@ -61,9 +60,8 @@ function Analysis() {
   const [period, setPeriod] = useState<Period>("day");
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [items, setItems] = useState<ItemRow[]>([]);
-  const [loading, setLoading] = useState(true);
-
   const [monthlyOrders, setMonthlyOrders] = useState<OrderRow[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -190,17 +188,10 @@ function Analysis() {
     return period === "day" ? `at ${best.label}` : best.label;
   }, [series, period]);
 
-  const tooltipStyle = {
-    background: "hsl(var(--popover))",
-    border: "1px solid hsl(var(--border))",
-    borderRadius: 12,
-    color: "hsl(var(--popover-foreground))",
-  } as const;
-
   const tiles = [
-    { label: `Sale · ${PERIOD_LABEL[period]}`, value: `${SITE.currency}${totals.revenue.toFixed(0)}` },
+    { label: `Sale · ${PERIOD_LABEL[period]}`, value: formatINR(totals.revenue) },
     { label: `Orders · ${PERIOD_LABEL[period]}`, value: totals.count },
-    { label: "Avg order value", value: `${SITE.currency}${totals.avg.toFixed(0)}` },
+    { label: "Avg order value", value: formatINR(totals.avg) },
     { label: "Best time", value: bestBucket },
   ];
 
@@ -210,7 +201,7 @@ function Analysis() {
         <div>
           <h1 className="font-display text-3xl text-primary">Sales analysis</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {loading ? "Loading…" : `Day, week & month breakdown · item-wise sale`}
+            {loading ? "Loading…" : "Day, week & month breakdown · item-wise sale"}
           </p>
         </div>
         <div className="inline-flex rounded-full border border-border bg-card p-1">
@@ -230,60 +221,141 @@ function Analysis() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-2xl border border-border bg-card p-5">
+          <div
+            key={t.label}
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
+          >
             <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{t.label}</div>
             <div className="mt-2 font-display text-2xl text-primary">{t.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">Sale by {PERIOD_LABEL[period]}</h2>
-          <span className="text-xs text-muted-foreground">{PERIOD_LABEL[period] === "Day" ? "Hourly" : "Daily"} revenue</span>
+          <span className="text-xs text-muted-foreground">
+            {PERIOD_LABEL[period] === "Day" ? "Hourly revenue & orders" : "Daily revenue & orders"}
+          </span>
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={series}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <Tooltip
-                contentStyle={tooltipStyle}
-                formatter={(v: number, n) =>
-                  n === "revenue" ? [`${SITE.currency}${v.toFixed(0)}`, "Sale"] : [v, "Orders"]
-                }
-              />
-              <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} />
-            </BarChart>
+            {period === "day" ? (
+              <BarChart data={series} margin={{ top: 8, right: 8 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} interval={1} />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickFormatter={(v: number) => compactNum(v)}
+                  width={44}
+                />
+                <Tooltip
+                  cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                  contentStyle={tooltipStyle}
+                  formatter={(v: number, n) =>
+                    n === "revenue" ? [formatINR(v), "Sale"] : [v, "Orders"]
+                  }
+                />
+                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} maxBarSize={28} />
+              </BarChart>
+            ) : (
+              <ComposedChart data={series} margin={{ top: 8, right: 8 }}>
+                <defs>
+                  <linearGradient id="periodRev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} interval="preserveStartEnd" />
+                <YAxis
+                  yAxisId="rev"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickFormatter={(v: number) => compactNum(v)}
+                  width={44}
+                />
+                <YAxis
+                  yAxisId="ord"
+                  orientation="right"
+                  stroke="hsl(var(--accent))"
+                  fontSize={11}
+                  allowDecimals={false}
+                  width={30}
+                />
+                <Tooltip
+                  cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                  contentStyle={tooltipStyle}
+                  formatter={(v: number, n) =>
+                    n === "revenue" ? [formatINR(v), "Sale"] : [v, "Orders"]
+                  }
+                />
+                <Bar yAxisId="ord" dataKey="orders" fill="hsl(var(--accent))" opacity={0.35} radius={[6, 6, 0, 0]} maxBarSize={22} />
+                <Area
+                  yAxisId="rev"
+                  type="monotone"
+                  dataKey="revenue"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth={2.5}
+                  fill="url(#periodRev)"
+                  dot={false}
+                  activeDot={{ r: 5 }}
+                />
+              </ComposedChart>
+            )}
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">Monthly sale</h2>
           <span className="text-xs text-muted-foreground">Last 6 months</span>
         </div>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlySeries}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <ComposedChart data={monthlySeries} margin={{ top: 8, right: 8 }}>
+              <defs>
+                <linearGradient id="monthRev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.45} />
+                  <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
               <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+              <YAxis
+                yAxisId="rev"
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={11}
+                tickFormatter={(v: number) => compactNum(v)}
+                width={44}
+              />
+              <YAxis yAxisId="ord" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} width={30} />
               <Tooltip
+                cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
                 contentStyle={tooltipStyle}
                 formatter={(v: number, n) =>
-                  n === "revenue" ? [`${SITE.currency}${v.toFixed(0)}`, "Sale"] : [v, "Orders"]
+                  n === "revenue" ? [formatINR(v), "Sale"] : [v, "Orders"]
                 }
               />
-              <Bar dataKey="revenue" fill="hsl(var(--accent))" radius={[8, 8, 0, 0]} />
-            </BarChart>
+              <Bar yAxisId="ord" dataKey="orders" fill="hsl(var(--muted-foreground))" opacity={0.3} radius={[6, 6, 0, 0]} maxBarSize={26} />
+              <Area
+                yAxisId="rev"
+                type="monotone"
+                dataKey="revenue"
+                stroke="hsl(var(--accent))"
+                strokeWidth={2.5}
+                fill="url(#monthRev)"
+                dot={{ r: 4, fill: "hsl(var(--accent))" }}
+                activeDot={{ r: 6 }}
+              />
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">Item-wise sale</h2>
           <span className="text-xs text-muted-foreground">Top 10 · {PERIOD_LABEL[period]}</span>
@@ -293,21 +365,26 @@ function Analysis() {
         ) : (
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={itemSales} layout="vertical" margin={{ left: 16, right: 24 }}>
+              <BarChart data={itemSales} layout="vertical" margin={{ left: 8, right: 24 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <XAxis
+                  type="number"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickFormatter={(v: number) => compactNum(v)}
+                />
                 <YAxis type="category" dataKey="name" width={170} stroke="hsl(var(--muted-foreground))" fontSize={11} />
                 <Tooltip
                   cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
                   contentStyle={tooltipStyle}
                   formatter={(v: number, _n, p: any) => [
-                    `${SITE.currency}${v.toFixed(0)} · ${Number(p?.payload?.qty ?? 0)} sold`,
+                    `${formatINR(v)} · ${Number(p?.payload?.qty ?? 0)} sold`,
                     p?.payload?.name ?? "Item",
                   ]}
                 />
-                <Bar dataKey="revenue" radius={[0, 8, 8, 0]}>
+                <Bar dataKey="revenue" radius={[0, 8, 8, 0]} maxBarSize={26}>
                   {itemSales.map((it, i) => (
-                    <Cell key={it.name} fill={BAR_COLORS[i % BAR_COLORS.length]} />
+                    <Cell key={it.name} fill={i === 0 ? "hsl(var(--accent))" : CHART_COLORS[(i - 1) % CHART_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>

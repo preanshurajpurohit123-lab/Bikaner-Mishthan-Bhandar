@@ -7,6 +7,7 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
+  Line,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -17,6 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
 import { statusHex, statusLabel } from "@/lib/order-status";
+import { CHART_COLORS, compactNum, formatINR, tooltipStyle } from "@/lib/admin-charts";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: Dashboard,
@@ -45,13 +47,6 @@ const RANGE_LABEL: Record<Range, string> = {
   "30d": "Last 30 days",
 };
 
-
-
-// Modern, balanced palette for the Top Selling chart (one colour per item).
-const ITEM_COLORS = [
-  "#6366f1", "#06b6d4", "#10b981", "#f59e0b",
-  "#ec4899", "#8b5cf6", "#14b8a6", "#f97316",
-];
 const TOP_ACCENT = "hsl(var(--accent))";
 
 function rangeStart(range: Range) {
@@ -183,9 +178,9 @@ function Dashboard() {
   }, [paid]);
 
   const tiles = [
-    { label: `Revenue · ${RANGE_LABEL[range]}`, value: `${SITE.currency}${totals.revenue.toFixed(0)}` },
+    { label: `Revenue · ${RANGE_LABEL[range]}`, value: formatINR(totals.revenue) },
     { label: `Orders · ${RANGE_LABEL[range]}`, value: totals.count },
-    { label: "Avg order value", value: `${SITE.currency}${totals.avg.toFixed(0)}` },
+    { label: "Avg order value", value: formatINR(totals.avg) },
     { label: "Peak hour", value: peakHour },
     { label: "Active now", value: activeCount },
     { label: "Menu items", value: menuCount },
@@ -217,7 +212,10 @@ function Dashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {tiles.map((t) => (
-          <div key={t.label} className="rounded-2xl border border-border bg-card p-5">
+          <div
+            key={t.label}
+            className="rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
+          >
             <div className="text-[11px] uppercase tracking-widest text-muted-foreground">{t.label}</div>
             <div className="mt-2 font-display text-2xl text-primary">{t.value}</div>
           </div>
@@ -225,41 +223,55 @@ function Dashboard() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-card p-5 lg:col-span-2">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm lg:col-span-2">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-display text-lg text-primary">Revenue trend</h2>
             <span className="text-xs text-muted-foreground">{RANGE_LABEL[range]}</span>
           </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={series}>
+              <AreaChart data={series} margin={{ top: 8, right: 8 }}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.45} />
                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <XAxis
+                  dataKey="label"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  interval="preserveStartEnd"
+                />
+                <YAxis
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickFormatter={(v: number) => compactNum(v)}
+                  width={44}
+                />
                 <Tooltip
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 12,
-                    color: "hsl(var(--popover-foreground))",
-                  }}
+                  contentStyle={tooltipStyle}
                   formatter={(v: number, n) =>
-                    n === "revenue" ? [`${SITE.currency}${v.toFixed(0)}`, "Revenue"] : [v, "Orders"]
+                    n === "revenue" ? [formatINR(v), "Revenue"] : [v, "Orders"]
                   }
                 />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#rev)" strokeWidth={2} />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#rev)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                <Line type="monotone" dataKey="orders" stroke="hsl(var(--accent))" strokeWidth={1.5} dot={false} strokeDasharray="5 4" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
+          <div className="mt-2 flex gap-4 text-xs text-muted-foreground">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-4 rounded-full bg-primary" /> Revenue
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="h-2 w-4 rounded-full bg-accent" /> Orders
+            </span>
+          </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
           <h2 className="mb-4 font-display text-lg text-primary">Order status</h2>
           {statusBreakdown.length === 0 ? (
             <p className="text-sm text-muted-foreground">No orders yet.</p>
@@ -282,11 +294,7 @@ function Dashboard() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{
-                      background: "hsl(var(--popover))",
-                      border: "1px solid hsl(var(--border))",
-                      borderRadius: 12,
-                    }}
+                    contentStyle={tooltipStyle}
                     formatter={(v: number, _n, p: any) => [v, statusLabel(p?.payload?.name ?? "")]}
                   />
                 </PieChart>
@@ -304,7 +312,7 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
+      <div className="rounded-2xl border border-border bg-card p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="font-display text-lg text-primary">Top selling items</h2>
           <span className="text-xs text-muted-foreground">By quantity · {RANGE_LABEL[range]}</span>
@@ -314,9 +322,14 @@ function Dashboard() {
         ) : (
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topItems} layout="vertical" margin={{ left: 16, right: 24 }}>
+              <BarChart data={topItems} layout="vertical" margin={{ left: 8, right: 24 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
-                <XAxis type="number" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <XAxis
+                  type="number"
+                  stroke="hsl(var(--muted-foreground))"
+                  fontSize={11}
+                  tickFormatter={(v: number) => compactNum(v)}
+                />
                 <YAxis
                   type="category"
                   dataKey="name"
@@ -326,26 +339,22 @@ function Dashboard() {
                 />
                 <Tooltip
                   cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
-                  contentStyle={{
-                    background: "hsl(var(--popover))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: 12,
-                    boxShadow: "0 8px 24px -12px rgba(0,0,0,0.25)",
-                  }}
+                  contentStyle={tooltipStyle}
                   formatter={(v: number, _n, p: any) => [
-                    `${v} sold · ${SITE.currency}${Number(p?.payload?.revenue ?? 0).toFixed(0)}`,
+                    `${v} sold · ${formatINR(Number(p?.payload?.revenue ?? 0))}`,
                     p?.payload?.name ?? "Item",
                   ]}
                 />
                 <Bar
                   dataKey="qty"
                   radius={[0, 8, 8, 0]}
+                  maxBarSize={26}
                   isAnimationActive
                   animationDuration={800}
                   animationEasing="ease-out"
                 >
                   {topItems.map((it, i) => (
-                    <Cell key={it.name} fill={i === 0 ? TOP_ACCENT : ITEM_COLORS[i % ITEM_COLORS.length]} />
+                    <Cell key={it.name} fill={i === 0 ? TOP_ACCENT : CHART_COLORS[(i - 1) % CHART_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
