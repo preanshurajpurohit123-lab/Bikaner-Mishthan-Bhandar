@@ -14,6 +14,19 @@ export const CHART_COLORS = [
   "#ec4899", "#8b5cf6", "#14b8a6", "#f97316",
 ];
 
+/**
+ * Literal hex colours for SVG chart attributes (stroke/fill/stopColor):
+ * CSS variables fall back to grey inside recharts' inline SVG in some builds.
+ * Mirrors the theme: --primary #5B1A1A, --accent #C9A227, --border, --muted-foreground.
+ */
+export const CHART_HEX = {
+  primary: "#5B1A1A",
+  accent: "#C9A227",
+  border: "#E3D9C2",
+  axis: "#8A7A70",
+  cursor: "rgba(226, 216, 196, 0.45)",
+} as const;
+
 /** ₹ with Indian digit grouping, e.g. ₹1,23,450 */
 export function formatINR(v: number): string {
   return `₹${Math.round(v).toLocaleString("en-IN")}`;
