@@ -347,7 +347,7 @@ function Analysis() {
                 stroke={CHART_HEX.accent}
                 strokeWidth={2.5}
                 fill="url(#monthRev)"
-                dot={{ r: 4, fill: "hsl(var(--accent))" }}
+                dot={{ r: 4, fill: CHART_HEX.accent }}
                 activeDot={{ r: 6 }}
               />
             </ComposedChart>
@@ -384,7 +384,7 @@ function Analysis() {
                 />
                 <Bar dataKey="revenue" radius={[0, 8, 8, 0]} maxBarSize={26}>
                   {itemSales.map((it, i) => (
-                    <Cell key={it.name} fill={i === 0 ? "hsl(var(--accent))" : CHART_COLORS[(i - 1) % CHART_COLORS.length]} />
+                    <Cell key={it.name} fill={i === 0 ? CHART_HEX.accent : CHART_COLORS[(i - 1) % CHART_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>

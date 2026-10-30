@@ -245,10 +245,19 @@ function Dashboard() {
                   interval="preserveStartEnd"
                 />
                 <YAxis
+                  yAxisId="rev"
                   stroke={CHART_HEX.axis}
                   fontSize={11}
                   tickFormatter={(v: number) => compactNum(v)}
                   width={44}
+                />
+                <YAxis
+                  yAxisId="ord"
+                  orientation="right"
+                  stroke={CHART_HEX.accent}
+                  fontSize={11}
+                  allowDecimals={false}
+                  width={30}
                 />
                 <Tooltip
                   contentStyle={tooltipStyle}
@@ -256,8 +265,8 @@ function Dashboard() {
                     n === "revenue" ? [formatINR(v), "Revenue"] : [v, "Orders"]
                   }
                 />
-                <Area type="monotone" dataKey="revenue" stroke={CHART_HEX.primary} fill="url(#rev)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
-                <Line type="monotone" dataKey="orders" stroke={CHART_HEX.accent} strokeWidth={1.5} dot={false} strokeDasharray="5 4" />
+                <Area yAxisId="rev" type="monotone" dataKey="revenue" stroke={CHART_HEX.primary} fill="url(#rev)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                <Line yAxisId="ord" type="monotone" dataKey="orders" stroke={CHART_HEX.accent} strokeWidth={1.5} dot={false} strokeDasharray="5 4" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
