@@ -18,7 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
 import { statusHex, statusLabel } from "@/lib/order-status";
-import { CHART_COLORS, compactNum, formatINR, tooltipStyle } from "@/lib/admin-charts";
+import { CHART_COLORS, CHART_HEX, compactNum, formatINR, tooltipStyle } from "@/lib/admin-charts";
 
 export const Route = createFileRoute("/_authenticated/admin/")({
   component: Dashboard,
@@ -47,7 +47,7 @@ const RANGE_LABEL: Record<Range, string> = {
   "30d": "Last 30 days",
 };
 
-const TOP_ACCENT = "hsl(var(--accent))";
+const TOP_ACCENT = CHART_HEX.accent;
 
 function rangeStart(range: Range) {
   const d = new Date();
@@ -233,19 +233,19 @@ function Dashboard() {
               <AreaChart data={series} margin={{ top: 8, right: 8 }}>
                 <defs>
                   <linearGradient id="rev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.45} />
-                    <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    <stop offset="5%" stopColor={CHART_HEX.primary} stopOpacity={0.45} />
+                    <stop offset="95%" stopColor={CHART_HEX.primary} stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_HEX.border} vertical={false} />
                 <XAxis
                   dataKey="label"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                   interval="preserveStartEnd"
                 />
                 <YAxis
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                   tickFormatter={(v: number) => compactNum(v)}
                   width={44}
@@ -256,8 +256,8 @@ function Dashboard() {
                     n === "revenue" ? [formatINR(v), "Revenue"] : [v, "Orders"]
                   }
                 />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#rev)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
-                <Line type="monotone" dataKey="orders" stroke="hsl(var(--accent))" strokeWidth={1.5} dot={false} strokeDasharray="5 4" />
+                <Area type="monotone" dataKey="revenue" stroke={CHART_HEX.primary} fill="url(#rev)" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} />
+                <Line type="monotone" dataKey="orders" stroke={CHART_HEX.accent} strokeWidth={1.5} dot={false} strokeDasharray="5 4" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -323,10 +323,10 @@ function Dashboard() {
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={topItems} layout="vertical" margin={{ left: 8, right: 24 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_HEX.border} horizontal={false} />
                 <XAxis
                   type="number"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                   tickFormatter={(v: number) => compactNum(v)}
                 />
@@ -334,11 +334,11 @@ function Dashboard() {
                   type="category"
                   dataKey="name"
                   width={160}
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                 />
                 <Tooltip
-                  cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                  cursor={{ fill: CHART_HEX.cursor }}
                   contentStyle={tooltipStyle}
                   formatter={(v: number, _n, p: any) => [
                     `${v} sold · ${formatINR(Number(p?.payload?.revenue ?? 0))}`,
