@@ -15,7 +15,7 @@ import {
 } from "recharts";
 import { supabase } from "@/integrations/supabase/client";
 import { SITE } from "@/lib/site";
-import { CHART_COLORS, compactNum, formatINR, tooltipStyle } from "@/lib/admin-charts";
+import { CHART_COLORS, CHART_HEX, compactNum, formatINR, tooltipStyle } from "@/lib/admin-charts";
 
 export const Route = createFileRoute("/_authenticated/admin/analysis")({
   component: Analysis,
@@ -242,36 +242,36 @@ function Analysis() {
           <ResponsiveContainer width="100%" height="100%">
             {period === "day" ? (
               <BarChart data={series} margin={{ top: 8, right: 8 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} interval={1} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_HEX.border} vertical={false} />
+                <XAxis dataKey="label" stroke={CHART_HEX.axis} fontSize={11} interval={1} />
                 <YAxis
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                   tickFormatter={(v: number) => compactNum(v)}
                   width={44}
                 />
                 <Tooltip
-                  cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                  cursor={{ fill: CHART_HEX.cursor }}
                   contentStyle={tooltipStyle}
                   formatter={(v: number, n) =>
                     n === "revenue" ? [formatINR(v), "Sale"] : [v, "Orders"]
                   }
                 />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" radius={[8, 8, 0, 0]} maxBarSize={28} />
+                <Bar dataKey="revenue" fill={CHART_HEX.primary} radius={[8, 8, 0, 0]} maxBarSize={28} />
               </BarChart>
             ) : (
               <ComposedChart data={series} margin={{ top: 8, right: 8 }}>
                 <defs>
                   <linearGradient id="periodRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0.02} />
+                    <stop offset="0%" stopColor={CHART_HEX.primary} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={CHART_HEX.primary} stopOpacity={0.02} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} interval="preserveStartEnd" />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_HEX.border} vertical={false} />
+                <XAxis dataKey="label" stroke={CHART_HEX.axis} fontSize={11} interval="preserveStartEnd" />
                 <YAxis
                   yAxisId="rev"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                   tickFormatter={(v: number) => compactNum(v)}
                   width={44}
@@ -279,24 +279,24 @@ function Analysis() {
                 <YAxis
                   yAxisId="ord"
                   orientation="right"
-                  stroke="hsl(var(--accent))"
+                  stroke={CHART_HEX.accent}
                   fontSize={11}
                   allowDecimals={false}
                   width={30}
                 />
                 <Tooltip
-                  cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                  cursor={{ fill: CHART_HEX.cursor }}
                   contentStyle={tooltipStyle}
                   formatter={(v: number, n) =>
                     n === "revenue" ? [formatINR(v), "Sale"] : [v, "Orders"]
                   }
                 />
-                <Bar yAxisId="ord" dataKey="orders" fill="hsl(var(--accent))" opacity={0.35} radius={[6, 6, 0, 0]} maxBarSize={22} />
+                <Bar yAxisId="ord" dataKey="orders" fill={CHART_HEX.accent} opacity={0.35} radius={[6, 6, 0, 0]} maxBarSize={22} />
                 <Area
                   yAxisId="rev"
                   type="monotone"
                   dataKey="revenue"
-                  stroke="hsl(var(--primary))"
+                  stroke={CHART_HEX.primary}
                   strokeWidth={2.5}
                   fill="url(#periodRev)"
                   dot={false}
@@ -318,36 +318,36 @@ function Analysis() {
             <ComposedChart data={monthlySeries} margin={{ top: 8, right: 8 }}>
               <defs>
                 <linearGradient id="monthRev" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--accent))" stopOpacity={0.45} />
-                  <stop offset="100%" stopColor="hsl(var(--accent))" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor={CHART_HEX.accent} stopOpacity={0.45} />
+                  <stop offset="100%" stopColor={CHART_HEX.accent} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-              <XAxis dataKey="label" stroke="hsl(var(--muted-foreground))" fontSize={11} />
+              <CartesianGrid strokeDasharray="3 3" stroke={CHART_HEX.border} vertical={false} />
+              <XAxis dataKey="label" stroke={CHART_HEX.axis} fontSize={11} />
               <YAxis
                 yAxisId="rev"
-                stroke="hsl(var(--muted-foreground))"
+                stroke={CHART_HEX.axis}
                 fontSize={11}
                 tickFormatter={(v: number) => compactNum(v)}
                 width={44}
               />
-              <YAxis yAxisId="ord" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} width={30} />
+              <YAxis yAxisId="ord" orientation="right" stroke={CHART_HEX.axis} fontSize={11} allowDecimals={false} width={30} />
               <Tooltip
-                cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
+                cursor={{ fill: CHART_HEX.cursor }}
                 contentStyle={tooltipStyle}
                 formatter={(v: number, n) =>
                   n === "revenue" ? [formatINR(v), "Sale"] : [v, "Orders"]
                 }
               />
-              <Bar yAxisId="ord" dataKey="orders" fill="hsl(var(--muted-foreground))" opacity={0.3} radius={[6, 6, 0, 0]} maxBarSize={26} />
+              <Bar yAxisId="ord" dataKey="orders" fill={CHART_HEX.axis} opacity={0.3} radius={[6, 6, 0, 0]} maxBarSize={26} />
               <Area
                 yAxisId="rev"
                 type="monotone"
                 dataKey="revenue"
-                stroke="hsl(var(--accent))"
+                stroke={CHART_HEX.accent}
                 strokeWidth={2.5}
                 fill="url(#monthRev)"
-                dot={{ r: 4, fill: "hsl(var(--accent))" }}
+                dot={{ r: 4, fill: CHART_HEX.accent }}
                 activeDot={{ r: 6 }}
               />
             </ComposedChart>
@@ -366,16 +366,16 @@ function Analysis() {
           <div className="h-96">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={itemSales} layout="vertical" margin={{ left: 8, right: 24 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" horizontal={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={CHART_HEX.border} horizontal={false} />
                 <XAxis
                   type="number"
-                  stroke="hsl(var(--muted-foreground))"
+                  stroke={CHART_HEX.axis}
                   fontSize={11}
                   tickFormatter={(v: number) => compactNum(v)}
                 />
-                <YAxis type="category" dataKey="name" width={170} stroke="hsl(var(--muted-foreground))" fontSize={11} />
+                <YAxis type="category" dataKey="name" width={170} stroke={CHART_HEX.axis} fontSize={11} />
                 <Tooltip
-                  cursor={{ fill: "hsl(var(--muted) / 0.4)" }}
+                  cursor={{ fill: CHART_HEX.cursor }}
                   contentStyle={tooltipStyle}
                   formatter={(v: number, _n, p: any) => [
                     `${formatINR(v)} · ${Number(p?.payload?.qty ?? 0)} sold`,
@@ -384,7 +384,7 @@ function Analysis() {
                 />
                 <Bar dataKey="revenue" radius={[0, 8, 8, 0]} maxBarSize={26}>
                   {itemSales.map((it, i) => (
-                    <Cell key={it.name} fill={i === 0 ? "hsl(var(--accent))" : CHART_COLORS[(i - 1) % CHART_COLORS.length]} />
+                    <Cell key={it.name} fill={i === 0 ? CHART_HEX.accent : CHART_COLORS[(i - 1) % CHART_COLORS.length]} />
                   ))}
                 </Bar>
               </BarChart>
